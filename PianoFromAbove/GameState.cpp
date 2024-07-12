@@ -593,7 +593,7 @@ MainScreen::MainScreen( wstring sMIDIFile, State eGameMode, HWND hWnd, D3D12Rend
     if ( !m_MIDI.IsValid() ) return;
     m_MIDI.ConnectNotes(); // Order's important here
     m_vEvents.reserve(m_MIDI.GetInfo().iEventCount);
-    m_MIDI.PostProcess(m_vEvents, &m_vProgramChange, &m_vMetaEvents, &m_vTempo, &m_vSignature, &m_vMarkers);
+    m_MIDI.PostProcess(m_vEvents, &m_vProgramChange, &m_vMetaEvents, &m_vTempo, &m_vSignature, &m_vMarkers, &m_vSysExEvents);
 
     // Allocate
     m_vTrackSettings.resize( m_MIDI.GetInfo().iNumTracks );
@@ -709,6 +709,10 @@ GameState::GameError MainScreen::Init()
         }
 
     }
+
+    // TODO: Actually play the SysEx events at the correct time
+    for (auto sysex : m_vSysExEvents)
+        m_OutDevice.PlaySysEx(sysex->GetData(), sysex->GetDataLen());
 
     for (auto& work : m_vThreadWork)
         work.reserve(262144); // Should be plenty for most MIDIs

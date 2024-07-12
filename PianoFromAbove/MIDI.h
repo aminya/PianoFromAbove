@@ -105,7 +105,7 @@ public:
     bool IsValid() const { return ( m_vTracks.size() > 0 && m_Info.iNoteCount > 0 && m_Info.iDivision > 0 ); }
 
     void PostProcess(vector<MIDIChannelEvent*>& vChannelEvents, eventvec_t* vProgramChanges = nullptr,
-        vector<MIDIMetaEvent*>* vMetaEvents = nullptr, eventvec_t* vTempo = nullptr, eventvec_t* vSignature = nullptr, eventvec_t* vMarkers = nullptr);
+        vector<MIDIMetaEvent*>* vMetaEvents = nullptr, eventvec_t* vTempo = nullptr, eventvec_t* vSignature = nullptr, eventvec_t* vMarkers = nullptr, vector<MIDISysExEvent*>* vSysEx = nullptr);
     void ConnectNotes();
     void clear( void );
 
@@ -303,6 +303,9 @@ public:
 
     int ParseEvent( const unsigned char *pcData, size_t iMaxSize );
 
+    int GetDataLen() const { return m_iDataLen; }
+    unsigned char* GetData() const { return m_pcData; }
+
 private:
     uint32_t m_iDataLen;
     unsigned char *m_pcData;
@@ -336,6 +339,8 @@ public:
     bool PlayEventAcrossChannels( unsigned char cStatus, unsigned char cParam1, unsigned char cParam2 );
     bool PlayEventAcrossChannels( unsigned char cStatus, unsigned char cParam1, unsigned char cParam2, const vector< int > &vChannels );
     bool PlayEvent( unsigned char bStatus, unsigned char bParam1, unsigned char bParam2 = 0 );
+
+    bool PlaySysEx(unsigned char* data, unsigned int length);
 
 private:
     static FARPROC GetOmniMIDIProc(const char* func);

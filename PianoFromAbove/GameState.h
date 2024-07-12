@@ -230,6 +230,7 @@ private:
     MIDI m_MIDI; // The song to display
     vector< MIDIChannelEvent* > m_vEvents; // The channel events of the song
     vector< MIDIMetaEvent* > m_vMetaEvents; // The meta events of the song
+    vector<MIDISysExEvent*> m_vSysExEvents;
     eventvec_t m_vNoteOns; // Map: note->time->Event pos. Used for fast(er) random access to the song.
     eventvec_t m_vNonNotes; // Tracked for jumping
     eventvec_t m_vProgramChange; // Tracked so we don't jump over them during random access

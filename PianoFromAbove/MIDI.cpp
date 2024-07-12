@@ -657,7 +657,7 @@ void MIDI::MIDIInfo::AddTrackInfo( const MIDITrack &mTrack )
 
 // Sets absolute time variables. A lot of code for not much happening...
 // Has to be EXACT. Even a little drift and things start messing up a few minutes in (metronome, etc)
-void MIDI::PostProcess(vector<MIDIChannelEvent*>& vChannelEvents, eventvec_t* vProgramChanges, vector<MIDIMetaEvent*>* vMetaEvents, eventvec_t* vTempo, eventvec_t* vSignature, eventvec_t* vMarkers)
+void MIDI::PostProcess(vector<MIDIChannelEvent*>& vChannelEvents, eventvec_t* vProgramChanges, vector<MIDIMetaEvent*>* vMetaEvents, eventvec_t* vTempo, eventvec_t* vSignature, eventvec_t* vMarkers, vector<MIDISysExEvent*>* vSysEx)
 {
     // Iterator like class
     MIDIPos midiPos( *this );
@@ -754,6 +754,9 @@ void MIDI::PostProcess(vector<MIDIChannelEvent*>& vChannelEvents, eventvec_t* vP
                     break;
                 }
             }
+        }
+        else if (pEvent->GetEventType() == MIDIEvent::SysExEvent && vSysEx) {
+            vSysEx->push_back((MIDISysExEvent*)pEvent);
         }
 
         g_LoadingProgress.progress++;
@@ -1092,13 +1095,14 @@ int MIDISysExEvent::ParseEvent( const unsigned char *pcData, size_t iMaxSize )
     // Get the data
     if ( m_iDataLen > 0 )
     {
-        m_pcData = new unsigned char[m_iDataLen];
-        memcpy( m_pcData, pcData + iCount, m_iDataLen );
-        if ( m_iEventCode == 0xF0 && m_pcData[ m_iDataLen - 1 ] != 0xF7 )
+        m_pcData = new unsigned char[m_iDataLen + 1];
+        m_pcData[0] = m_iEventCode;
+        memcpy(&m_pcData[1], pcData + iCount, m_iDataLen);
+        if ( m_iEventCode == 0xF0 && m_pcData[m_iDataLen] != 0xF7 )
             m_bHasMoreData = true;
     }
 
-    return iCount + m_iDataLen;
+    return iCount + m_iDataLen++;
 }
 
 
@@ -1300,6 +1304,22 @@ bool MIDIOutDevice::PlayEvent( unsigned char cStatus, unsigned char cParam1, uns
     } else {
         return midiOutShortMsg(m_hMIDIOut, (cParam2 << 16) + (cParam1 << 8) + cStatus) == MMSYSERR_NOERROR;
     }
+}
+
+bool MIDIOutDevice::PlaySysEx(unsigned char* data, unsigned int length) {
+    // TODO: KDMAPI support
+    if (m_bIsKDMAPI)
+        return true;
+
+    MIDIHDR hdr = {
+        .lpData = (LPSTR)data,
+        .dwBufferLength = length,
+        .dwBytesRecorded = length,
+    };
+    midiOutPrepareHeader(m_hMIDIOut, &hdr, sizeof(hdr));
+    midiOutLongMsg(m_hMIDIOut, &hdr, sizeof(hdr));
+    midiOutUnprepareHeader(m_hMIDIOut, &hdr, sizeof(hdr));
+    return true;
 }
 
 FARPROC MIDIOutDevice::GetOmniMIDIProc(const char* func) {
