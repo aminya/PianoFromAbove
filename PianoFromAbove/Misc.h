@@ -37,7 +37,7 @@ public:
 
     // Manual timer stuff
     void AddManualTime(long long time);
-    void SetFrameRate(unsigned rate);
+    void SetFrameRate(double rate);
     void IncrementFrame();
     bool m_bManualTimer;
     double m_dFramerate;

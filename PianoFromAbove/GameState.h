@@ -208,7 +208,7 @@ private:
     long long GetTickTime( int iTick, int iLastTempoTick, long long llLastTempoTime, int iMicroSecsPerBeat );
     int GetBeat( int iTick, int iBeatType, int iLastTempoTick );
     int GetBeatTick( int iTick, int iBeatType, int iLastTempoTick );
-    long long GetMinTime() const { return m_MIDI.GetInfo().llFirstNote - 3000000; }
+    long long GetMinTime() const { return m_MIDI.GetInfo().llFirstNote; }
     long long GetMaxTime() const { return m_MIDI.GetInfo().llTotalMicroSecs + 500000; }
 
     // Rendering

@@ -115,9 +115,10 @@ void Timer::AddManualTime(long long time)
     m_llManualTicks += time;
 }
 
-void Timer::SetFrameRate(unsigned rate)
+void Timer::SetFrameRate(double rate)
 {
-    m_llTicksPerSec = (long long)rate * 100;
+    //m_llTicksPerSec = (long long)rate * 100;
+    m_llManualTicksPerFrame = rate * m_llTicksPerSec;
     m_dFramerate = rate;
 }
 

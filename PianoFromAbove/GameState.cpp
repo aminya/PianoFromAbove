@@ -695,7 +695,7 @@ GameState::GameError MainScreen::Init()
     m_OutDevice.SetVolume( 1.0 );
     m_Timer.Init(config.m_bManualTimer || m_bDumpFrames);
     if (m_bDumpFrames) {
-        m_Timer.SetFrameRate(60);
+        m_Timer.SetFrameRate(config.GetPlaybackSettings().GetNSpeed() * 3.0);
     } else if (m_Timer.m_bManualTimer) {
         // get the screen's refresh rate
         DWM_TIMING_INFO timing_info;
